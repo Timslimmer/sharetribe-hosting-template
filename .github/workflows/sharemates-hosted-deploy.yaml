@@ -1,0 +1,231 @@
+# Written by the Sharemates hosting service. Edits here are overwritten
+# whenever the app's configuration changes; change the app in the console instead.
+name: Deploy to Sharemates hosting
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+# Two deploys racing would leave the function's code and its recorded artifact
+# out of step, so let a running deploy finish before the next starts.
+concurrency:
+  group: sharemates-hosted-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Skips entirely until the app is connected, so a repository that carries
+    # this file without the variables keeps working as it did.
+    if: vars.SHAREMATES_HOSTED_ROLE != ''
+    # Falls back to a hosted runner. A repository with its own runner names it
+    # in RUNNER_LABEL, which is also the only way to build in an organisation
+    # whose hosted-runner billing is blocked.
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+
+    permissions:
+      contents: read
+      # Buys the short-lived AWS session below. Without it there is no token to
+      # exchange and the deploy cannot reach AWS at all.
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.SHAREMATES_HOSTED_ROLE }}
+          aws-region: ${{ vars.SHAREMATES_HOSTED_REGION }}
+
+      # GitHub's hosted runners carry all of these; self-hosted runners often do
+      # not, and every one of them is missing only at the point of use, which is
+      # after a build that takes minutes. Check them up front instead.
+      #
+      # The AWS CLI installs into the run's own temp directory, because a deploy
+      # workflow has no business changing a runner it does not own. zip and jq
+      # cannot be installed that way, so they are attempted through the package
+      # manager only if passwordless sudo is already available, and otherwise
+      # reported as something the runner's owner has to fix.
+      - name: Ensure the deploy tooling
+        run: |
+          set -uo pipefail
+
+          if ! command -v aws >/dev/null 2>&1; then
+            echo "No AWS CLI on this runner; installing one for this run."
+            set -e
+            curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" \
+              -o "$RUNNER_TEMP/awscli.zip"
+            unzip -q "$RUNNER_TEMP/awscli.zip" -d "$RUNNER_TEMP/awscli"
+            "$RUNNER_TEMP/awscli/aws/install" \
+              -i "$RUNNER_TEMP/aws-cli" -b "$RUNNER_TEMP/aws-bin"
+            echo "$RUNNER_TEMP/aws-bin" >> "$GITHUB_PATH"
+            export PATH="$RUNNER_TEMP/aws-bin:$PATH"
+            set +e
+          fi
+          aws --version
+
+          MISSING=""
+          for tool in zip jq; do
+            command -v "$tool" >/dev/null 2>&1 || MISSING="$MISSING $tool"
+          done
+
+          if [ -n "$MISSING" ]; then
+            echo "Missing on this runner:$MISSING"
+            if sudo -n true 2>/dev/null; then
+              echo "Installing through apt-get."
+              sudo -n apt-get update -qq && sudo -n apt-get install -y -qq $MISSING
+            fi
+          fi
+
+          FATAL=""
+          for tool in zip jq; do
+            command -v "$tool" >/dev/null 2>&1 || FATAL="$FATAL $tool"
+          done
+          if [ -n "$FATAL" ]; then
+            echo "This runner is missing:$FATAL" >&2
+            echo "The deploy needs them to package and configure the artifact." >&2
+            echo "Install them on the runner, or use a runner that has them." >&2
+            exit 1
+          fi
+          echo "tooling ok"
+
+      # Fetched rather than committed. The packaging is this service's code, not
+      # the app's, and putting it in someone else's repository made it read as
+      # theirs, invited edits the next reconfigure would overwrite, and meant a
+      # packaging fix needed a commit to every repository the service had touched.
+      # Downloading it leaves the repository holding only the workflow, which is
+      # the one file GitHub must have on disk to run anything.
+      #
+      # Checked against a digest recorded when the site was connected. The point
+      # of a download is that the repository does not carry this code, but that
+      # also means it could change between builds with nothing in the repository
+      # to show it. The digest gives that back: a build runs the packaging this
+      # service published for it, or it stops.
+      - name: Fetch the packaging
+        env:
+          PACKAGING_URL: ${{ vars.SHAREMATES_HOSTED_PACKAGING_URL }}
+          PACKAGING_SHA256: ${{ vars.SHAREMATES_HOSTED_PACKAGING_SHA256 }}
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 --retry-all-errors "$PACKAGING_URL" -o "$RUNNER_TEMP/packaging.json"
+
+          if [ -z "${PACKAGING_SHA256:-}" ]; then
+            echo "No packaging digest is set for this site, so the download cannot be" >&2
+            echo "checked. Reconnect the repository from the Sharemates console." >&2
+            exit 1
+          fi
+          ACTUAL=$(sha256sum "$RUNNER_TEMP/packaging.json" | cut -d' ' -f1)
+          if [ "$ACTUAL" != "$PACKAGING_SHA256" ]; then
+            echo "The packaging served by $PACKAGING_URL is not what this site expects." >&2
+            echo "  expected ${PACKAGING_SHA256}" >&2
+            echo "  received ${ACTUAL}" >&2
+            echo "Refusing to run it. If the service published new packaging, reconnect" >&2
+            echo "the repository from the console to record the new digest." >&2
+            exit 1
+          fi
+
+          jq -e '.files | length > 0' "$RUNNER_TEMP/packaging.json" > /dev/null
+          jq -r '.files[] | @base64' "$RUNNER_TEMP/packaging.json" | while read -r row; do
+            path=$(echo "$row" | base64 -d | jq -r .path)
+            case "$path" in
+              .sharemates/*) ;;
+              *) echo "refusing to write outside .sharemates: $path" >&2; exit 1 ;;
+            esac
+            mkdir -p "$(dirname "$path")"
+            echo "$row" | base64 -d | jq -r .content > "$path"
+            echo "wrote $path"
+          done
+
+      # Only the values the build compiles into the browser bundle come through
+      # here, and nothing else: config/env.js selects exactly /^REACT_APP_/i out
+      # of the environment, so every other key in an operator's settings file is
+      # of no use to a build and has no business in a repository variable. The
+      # rest never reaches CI at all; the function reads it from S3 at startup.
+      #
+      # They are exported rather than written to a .env, which is not a style
+      # choice. The template runs dotenv-expand over that file, so a value
+      # holding a dollar sign is silently substituted away, and no dotenv quoting
+      # style survives a backslash, a dollar sign and a single quote together.
+      # GitHub's heredoc form carries the bytes as they are.
+      #
+      # The variable goes through the environment rather than being interpolated
+      # into the script, because interpolation would let a repository variable
+      # inject commands into the runner.
+      - name: Compose the build configuration
+        env:
+          PUBLIC_ENV: ${{ vars.SHAREMATES_HOSTED_PUBLIC_ENV }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$PUBLIC_ENV" | jq -e 'type == "object"' > /dev/null
+          printf '%s' "$PUBLIC_ENV" \
+            | jq -r --arg d 'SHAREMATES_VALUE_END' \
+                'to_entries[] | "\(.key)<<\($d)\n\(.value)\n\($d)"' \
+            >> "$GITHUB_ENV"
+          printf '%s' "$PUBLIC_ENV" | jq -r 'keys[] | "exported \(.)"'
+
+      - name: Build
+        env:
+          BUILD_COMMAND: ${{ vars.SHAREMATES_HOSTED_BUILD_COMMAND }}
+        run: |
+          set -euo pipefail
+          CI=true bash -c "$BUILD_COMMAND"
+
+      # No server-side configuration passes through here. The operator's
+      # settings live in the site's own object in S3 and the function reads them
+      # at cold start, so this runner never holds a marketplace's credentials and
+      # the artifact it produces is code and nothing else.
+      - name: Package
+        run: |
+          set -euo pipefail
+          bash .sharemates/package-lambda.sh
+
+      - name: Upload the artifact
+        env:
+          BUCKET: ${{ vars.SHAREMATES_HOSTED_BUCKET }}
+          FUNCTION: ${{ vars.SHAREMATES_HOSTED_FUNCTION }}
+          ARTIFACT: ${{ vars.SHAREMATES_HOSTED_ARTIFACT }}
+        run: |
+          set -euo pipefail
+          test -f "$ARTIFACT" || { echo "the build produced no $ARTIFACT" >&2; exit 1; }
+          KEY="lambda/${FUNCTION#hosted-}/${GITHUB_SHA::8}.zip"
+          aws s3 cp "$ARTIFACT" "s3://${BUCKET}/${KEY}" --no-progress
+          echo "ARTIFACT_KEY=$KEY" >> "$GITHUB_ENV"
+
+      # Deploy from the uploaded object rather than a direct upload, so the exact
+      # bytes behind any release stay recoverable from the versioned bucket.
+      # The output is limited because the full response carries the function's
+      # whole environment.
+      - name: Update the function
+        env:
+          BUCKET: ${{ vars.SHAREMATES_HOSTED_BUCKET }}
+          FUNCTION: ${{ vars.SHAREMATES_HOSTED_FUNCTION }}
+        run: |
+          set -euo pipefail
+          aws lambda update-function-code \
+            --function-name "$FUNCTION" \
+            --s3-bucket "$BUCKET" \
+            --s3-key "$ARTIFACT_KEY" \
+            --query 'CodeSha256' --output text
+          aws lambda wait function-updated --function-name "$FUNCTION"
+
+      # Proves the deploy rather than the upload. A 200 from the app's own
+      # hostname is the only check that exercises the whole path: DNS, the
+      # certificate, API Gateway, the adapter and the app's own server.
+      - name: Verify
+        env:
+          URL: ${{ vars.SHAREMATES_HOSTED_URL }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 10); do
+            STATUS=$(curl -sL -o /dev/null -w "%{http_code}" "$URL" || echo 000)
+            echo "attempt $attempt: $STATUS"
+            [ "$STATUS" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "$URL never returned 200 after the deploy" >&2
+          exit 1
