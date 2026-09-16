@@ -1566,3 +1566,27 @@ textarea {
     margin-top: 32px;
   }
 }
+
+/* ================ Landing page text colors ================ */
+
+/**
+ * Scoped to the landing page only: LandingPage.js passes the
+ * .landingPageColorTheme class down to the Page root. Limiting the rules to
+ * main#main-content keeps the shared Topbar and Footer on the default colors.
+ *
+ * The custom properties below are read by the PageBuilder styles
+ * (SectionBuilder.module.css and Primitives/Heading/Heading.module.css), which
+ * fall back to the default colors everywhere else.
+ */
+.landingPageColorTheme main#main-content {
+  /* Was white: headings, body text and links in dark-theme sections */
+  --pageDarkThemeHeadingColor: #a78bfa;
+  --pageDarkThemeTextColor: #a78bfa;
+  --pageDarkThemeLinkColor: #a78bfa;
+
+  /* Was near-black: headings in light-theme sections */
+  --pageHeadingColor: #c2410c;
+
+  /* Was near-black: body text in light-theme sections, inherited from html */
+  color: #c2410c;
+}
