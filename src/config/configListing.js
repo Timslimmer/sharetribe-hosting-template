@@ -53,166 +53,384 @@
  *   - requiredMessage (optional):    Message for those fields, which are mandatory.
  */
 export const listingFields = [
-  // {
-  //   "scope": "public",
-  //   "label": "Gears",
-  //   "key": "gears",
-  //   "schemaType": "long",
-  //   "numberConfig": {
-  //     "minimum": 1,
-  //     "maximum": 24
-  //   },
-  //   "filterConfig": {
-  //     "indexForSearch": true,
-  //     "group": "primary",
-  //     "label": "Gears"
-  //   }
-  // }
-  // {
-  //   key: 'bikeType',
-  //   scope: 'public',
-  //   schemaType: 'enum',
-  //   enumOptions: [
-  //     { option: 'city-bikes', label: 'City bikes' },
-  //     { option: 'electric-bikes', label: 'Electric bikes' },
-  //     { option: 'mountain-bikes', label: 'Mountain bikes' },
-  //     { option: 'childrens-bikes', label: "Children's bikes" },
-  //   ],
-  //   categoryConfig: {
-  //     limitToCategoryIds: true,
-  //     categoryIds: ['cats'],
-  //   },
-  //   filterConfig: {
-  //     showFilter: true,
-  //     filterType: 'SelectMultipleFilter', //'SelectSingleFilter',
-  //     label: 'Bike type',
-  //     group: 'primary',
-  //   },
-  //   showConfig: {
-  //     label: 'Bike type',
-  //     isDetail: true,
-  //   },
-  //   saveConfig: {
-  //     label: 'Bike type',
-  //     placeholderMessage: 'Select an option…',
-  //     isRequired: true,
-  //     requiredMessage: 'You need to select a bike type.',
-  //   },
-  // },
-  // {
-  //   key: 'tire',
-  //   scope: 'public',
-  //   schemaType: 'enum',
-  //   enumOptions: [
-  //     { option: '29', label: '29' },
-  //     { option: '28', label: '28' },
-  //     { option: '27', label: '27' },
-  //     { option: '26', label: '26' },
-  //     { option: '24', label: '24' },
-  //     { option: '20', label: '20' },
-  //     { option: '18', label: '18' },
-  //   ],
-  //   filterConfig: {
-  //     showFilter: true,
-  //     label: 'Tire size',
-  //     group: 'secondary',
-  //   },
-  //   showConfig: {
-  //     label: 'Tire size',
-  //     isDetail: true,
-  //   },
-  //   saveConfig: {
-  //     label: 'Tire size',
-  //     placeholderMessage: 'Select an option…',
-  //     isRequired: true,
-  //     requiredMessage: 'You need to select a tire size.',
-  //   },
-  // },
-  // {
-  //   key: 'brand',
-  //   scope: 'public',
-  //   schemaType: 'enum',
-  //   enumOptions: [
-  //     { option: 'cube', label: 'Cube' },
-  //     { option: 'diamant', label: 'Diamant' },
-  //     { option: 'ghost', label: 'GHOST' },
-  //     { option: 'giant', label: 'Giant' },
-  //     { option: 'kalkhoff', label: 'Kalkhoff' },
-  //     { option: 'kona', label: 'Kona' },
-  //     { option: 'otler', label: 'Otler' },
-  //     { option: 'vermont', label: 'Vermont' },
-  //   ],
-  //   filterConfig: {
-  //     showFilter: true,
-  //     label: 'Brand',
-  //     group: 'secondary',
-  //   },
-  //   showConfig: {
-  //     label: 'Brand',
-  //     isDetail: true,
-  //   },
-  //   saveConfig: {
-  //     label: 'Brand',
-  //     placeholderMessage: 'Select an option…',
-  //     isRequired: true,
-  //     requiredMessage: 'You need to select a brand.',
-  //   },
-  // },
-  // {
-  //   key: 'accessories',
-  //   scope: 'public',
-  //   schemaType: 'multi-enum',
-  //   enumOptions: [
-  //     { option: 'bell', label: 'Bell' },
-  //     { option: 'lights', label: 'Lights' },
-  //     { option: 'lock', label: 'Lock' },
-  //     { option: 'mudguard', label: 'Mudguard' },
-  //   ],
-  //   filterConfig: {
-  //     showFilter: true,
-  //     label: 'Accessories',
-  //     searchMode: 'has_all',
-  //     group: 'secondary',
-  //   },
-  //   showConfig: {
-  //     label: 'Accessories',
-  //   },
-  //   saveConfig: {
-  //     label: 'Accessories',
-  //     placeholderMessage: 'Select an option…',
-  //     isRequired: false,
-  //   },
-  // },
-  // // An example of how to use transaction type specific custom fields and private data.
-  // {
-  //   key: 'note',
-  //   scope: 'public',
-  //   schemaType: 'text',
-  //   listingTypeConfig: {
-  //     limitToListingTypeIds: true,
-  //     listingTypeIds: ['product-selling'],
-  //   },
-  //   showConfig: {
-  //     label: 'Extra notes',
-  //   },
-  //   saveConfig: {
-  //     label: 'Extra notes',
-  //     placeholderMessage: 'Some public extra note about this bike...',
-  //   },
-  // },
-  // {
-  //   key: 'privatenote',
-  //   scope: 'private',
-  //   schemaType: 'text',
-  //   listingTypeConfig: {
-  //     limitToListingTypeIds: true,
-  //     listingTypeIds: ['daily-booking'],
-  //   },
-  //   saveConfig: {
-  //     label: 'Private notes',
-  //     placeholderMessage: 'Some private note about this bike...',
-  //   },
-  // },
+  {
+    "key": "era",
+    "scope": "public",
+    "schemaType": "enum",
+    "enumOptions": [
+      {
+        "option": "mighty-morphin",
+        "label": "Mighty Morphin (1993-1995)"
+      },
+      {
+        "option": "zeo",
+        "label": "Zeo (1996)"
+      },
+      {
+        "option": "turbo",
+        "label": "Turbo (1997)"
+      },
+      {
+        "option": "in-space",
+        "label": "In Space (1998)"
+      },
+      {
+        "option": "lost-galaxy",
+        "label": "Lost Galaxy (1999)"
+      },
+      {
+        "option": "lightspeed-rescue",
+        "label": "Lightspeed Rescue (2000)"
+      },
+      {
+        "option": "time-force",
+        "label": "Time Force (2001)"
+      },
+      {
+        "option": "wild-force",
+        "label": "Wild Force (2002)"
+      },
+      {
+        "option": "ninja-storm",
+        "label": "Ninja Storm (2003)"
+      },
+      {
+        "option": "dino-thunder",
+        "label": "Dino Thunder (2004)"
+      },
+      {
+        "option": "spd",
+        "label": "S.P.D. (2005)"
+      },
+      {
+        "option": "mystic-force",
+        "label": "Mystic Force (2006)"
+      },
+      {
+        "option": "operation-overdrive",
+        "label": "Operation Overdrive (2007)"
+      },
+      {
+        "option": "jungle-fury",
+        "label": "Jungle Fury (2008)"
+      },
+      {
+        "option": "rpm",
+        "label": "RPM (2009)"
+      },
+      {
+        "option": "samurai",
+        "label": "Samurai / Super Samurai (2011-2012)"
+      },
+      {
+        "option": "megaforce",
+        "label": "Megaforce / Super Megaforce (2013-2014)"
+      },
+      {
+        "option": "dino-charge",
+        "label": "Dino Charge (2015-2016)"
+      },
+      {
+        "option": "ninja-steel",
+        "label": "Ninja Steel (2017-2018)"
+      },
+      {
+        "option": "beast-morphers",
+        "label": "Beast Morphers (2019-2020)"
+      },
+      {
+        "option": "dino-fury",
+        "label": "Dino Fury (2021-2022)"
+      },
+      {
+        "option": "cosmic-fury",
+        "label": "Cosmic Fury (2023)"
+      },
+      {
+        "option": "movies",
+        "label": "Movies"
+      },
+      {
+        "option": "multi-series",
+        "label": "Multi-series / generic"
+      }
+    ],
+    "filterConfig": {
+      "indexForSearch": true,
+      "filterType": "SelectSingleFilter",
+      "label": "Series / era",
+      "group": "primary",
+      "showFilter": true
+    },
+    "showConfig": {
+      "label": "Series / era",
+      "isDetail": true
+    },
+    "saveConfig": {
+      "label": "Series / era",
+      "requiredMessage": "Pick the series this item comes from. Choose Multi-series if it spans several."
+    },
+    "categoryConfig": {}
+  },
+  {
+    "key": "rangerColor",
+    "scope": "public",
+    "schemaType": "multi-enum",
+    "enumOptions": [
+      {
+        "option": "red",
+        "label": "Red"
+      },
+      {
+        "option": "blue",
+        "label": "Blue"
+      },
+      {
+        "option": "black",
+        "label": "Black"
+      },
+      {
+        "option": "yellow",
+        "label": "Yellow"
+      },
+      {
+        "option": "pink",
+        "label": "Pink"
+      },
+      {
+        "option": "green",
+        "label": "Green"
+      },
+      {
+        "option": "white",
+        "label": "White"
+      },
+      {
+        "option": "gold",
+        "label": "Gold"
+      },
+      {
+        "option": "silver",
+        "label": "Silver"
+      },
+      {
+        "option": "other",
+        "label": "Other / villain"
+      },
+      {
+        "option": "full-team",
+        "label": "Full team"
+      }
+    ],
+    "filterConfig": {
+      "indexForSearch": true,
+      "filterType": "SelectMultipleFilter",
+      "label": "Ranger",
+      "searchMode": "has_any",
+      "group": "primary",
+      "showFilter": true
+    },
+    "showConfig": {
+      "label": "Ranger",
+      "isDetail": true
+    },
+    "saveConfig": {
+      "label": "Ranger"
+    },
+    "categoryConfig": {}
+  },
+  {
+    "key": "condition",
+    "scope": "public",
+    "schemaType": "enum",
+    "enumOptions": [
+      {
+        "option": "mint-sealed",
+        "label": "Mint - sealed in original packaging"
+      },
+      {
+        "option": "mint-opened",
+        "label": "Mint - opened, complete"
+      },
+      {
+        "option": "excellent",
+        "label": "Excellent - light wear"
+      },
+      {
+        "option": "good",
+        "label": "Good - visible wear"
+      },
+      {
+        "option": "fair",
+        "label": "Fair - significant wear"
+      },
+      {
+        "option": "for-parts",
+        "label": "For parts or repair"
+      }
+    ],
+    "filterConfig": {
+      "indexForSearch": true,
+      "filterType": "SelectSingleFilter",
+      "label": "Condition",
+      "group": "primary",
+      "showFilter": true
+    },
+    "showConfig": {
+      "label": "Condition",
+      "isDetail": true
+    },
+    "saveConfig": {
+      "label": "Condition",
+      "requiredMessage": "Buyers of second-hand collectibles rely on this, so it is required."
+    },
+    "categoryConfig": {}
+  },
+  {
+    "key": "completeness",
+    "scope": "public",
+    "schemaType": "enum",
+    "enumOptions": [
+      {
+        "option": "complete",
+        "label": "Complete with all accessories"
+      },
+      {
+        "option": "missing-parts",
+        "label": "Missing some accessories"
+      },
+      {
+        "option": "item-only",
+        "label": "Item only, no accessories"
+      },
+      {
+        "option": "not-applicable",
+        "label": "Not applicable"
+      }
+    ],
+    "filterConfig": {
+      "indexForSearch": true,
+      "filterType": "SelectSingleFilter",
+      "label": "Completeness",
+      "group": "secondary",
+      "showFilter": true
+    },
+    "showConfig": {
+      "label": "Completeness",
+      "isDetail": true
+    },
+    "saveConfig": {
+      "label": "Completeness"
+    },
+    "categoryConfig": {}
+  },
+  {
+    "key": "manufacturer",
+    "scope": "public",
+    "schemaType": "enum",
+    "enumOptions": [
+      {
+        "option": "bandai",
+        "label": "Bandai"
+      },
+      {
+        "option": "hasbro",
+        "label": "Hasbro"
+      },
+      {
+        "option": "playmates",
+        "label": "Playmates"
+      },
+      {
+        "option": "funko",
+        "label": "Funko"
+      },
+      {
+        "option": "super7",
+        "label": "Super7"
+      },
+      {
+        "option": "toynami",
+        "label": "Toynami"
+      },
+      {
+        "option": "other",
+        "label": "Other"
+      },
+      {
+        "option": "unknown",
+        "label": "Unknown"
+      }
+    ],
+    "filterConfig": {
+      "indexForSearch": true,
+      "filterType": "SelectSingleFilter",
+      "label": "Manufacturer",
+      "group": "secondary",
+      "showFilter": true
+    },
+    "showConfig": {
+      "label": "Manufacturer",
+      "isDetail": true
+    },
+    "saveConfig": {
+      "label": "Manufacturer"
+    },
+    "categoryConfig": {}
+  },
+  {
+    "key": "authenticity",
+    "scope": "public",
+    "schemaType": "enum",
+    "enumOptions": [
+      {
+        "option": "official",
+        "label": "Official licensed merchandise"
+      },
+      {
+        "option": "fan-made",
+        "label": "Fan-made / custom"
+      },
+      {
+        "option": "unverified",
+        "label": "Unverified"
+      }
+    ],
+    "filterConfig": {
+      "indexForSearch": true,
+      "filterType": "SelectSingleFilter",
+      "label": "Authenticity",
+      "group": "secondary",
+      "showFilter": true
+    },
+    "showConfig": {
+      "label": "Authenticity",
+      "isDetail": true
+    },
+    "saveConfig": {
+      "label": "Authenticity",
+      "requiredMessage": "State whether this is official merchandise or a fan-made item."
+    },
+    "categoryConfig": {}
+  },
+  {
+    "key": "releaseYear",
+    "scope": "public",
+    "schemaType": "long",
+    "filterConfig": {
+      "indexForSearch": false,
+      "label": "Year released"
+    },
+    "showConfig": {
+      "label": "Year released",
+      "isDetail": true
+    },
+    "saveConfig": {
+      "label": "Year released",
+      "placeholderMessage": "e.g. 1994"
+    },
+    "categoryConfig": {}
+  }
 ];
 
 ///////////////////////////////////////////////////////////////////////
@@ -283,174 +501,64 @@ export const listingFields = [
  */
 
 export const listingTypes = [
-  // // Here are some examples of listingTypes
-  // // TODO: SearchPage does not work well if both booking and product selling are used at the same time
-  // {
-  //   listingType: 'daily-booking',
-  //   label: 'Daily booking',
-  //   transactionType: {
-  //     process: 'default-booking',
-  //     alias: 'default-booking/release-1',
-  //     unitType: 'day',
-  //   },
-  //   availabilityType: 'oneSeat',
-  //   defaultListingFields: {
-  //     location: true,
-  //     payoutDetails: true,
-  //   },
-  //   transactionFields: [
-  //     {
-  //       showTo: 'customer',
-  //       label: 'Extra requests for the hosts',
-  //       key: 'requests',
-  //       schemaType: 'text',
-  //     },
-  //     {
-  //       showTo: 'customer',
-  //       label: 'Are you traveling with minors?',
-  //       key: 'minors',
-  //       schemaType: 'boolean',
-  //     },
-  //     {
-  //       showTo: 'customer',
-  //       numberConfig: {
-  //         minimum: 1,
-  //         maximum: 10,
-  //       },
-  //       label: 'How many people are staying at the venue',
-  //       key: 'peopleStaying',
-  //       schemaType: 'long',
-  //       saveConfig: {
-  //         required: true,
-  //       },
-  //     },
-  //     {
-  //       showTo: 'customer',
-  //       enumOptions: [
-  //         {
-  //           label: 'Morning cleanup (10am-12am)',
-  //           option: 'morning',
-  //         },
-  //         {
-  //           label: 'Afternoon cleanup (2pm-4pm)',
-  //           option: 'afternoon',
-  //         },
-  //       ],
-  //       label: 'Schedule preference',
-  //       key: 'schedulePreference',
-  //       schemaType: 'enum',
-  //     },
-  //     {
-  //       showTo: 'customer',
-  //       enumOptions: [
-  //         {
-  //           label: 'Vegetarian',
-  //           option: 'vegetarian',
-  //         },
-  //         {
-  //           label: 'Vegan',
-  //           option: 'vegan',
-  //         },
-  //         {
-  //           label: 'Gluten free',
-  //           option: 'glutenFree',
-  //         },
-  //         {
-  //           label: 'No caffeine',
-  //           option: 'decaf',
-  //         },
-  //         {
-  //           label: 'Nut free',
-  //           option: 'nutFree',
-  //         },
-  //         {
-  //           label: 'Dairy free',
-  //           option: 'dairyFree',
-  //         },
-  //       ],
-  //       label: 'Dietary preferences',
-  //       key: 'dietaryPreferences',
-  //       schemaType: 'multi-enum',
-  //     },
-  //   ],
-  //   messagingOptions	{ fileAttachments: false }
-  // },
-  // {
-  //   listingType: 'nightly-booking',
-  //   label: 'Nightly booking',
-  //   transactionType: {
-  //     process: 'default-booking',
-  //     alias: 'default-booking/release-1',
-  //     unitType: 'night',
-  //   },
-  // },
-  // {
-  //   listingType: 'hourly-booking',
-  //   label: 'Hourly booking',
-  //   transactionType: {
-  //     process: 'default-booking',
-  //     alias: 'default-booking/release-1',
-  //     unitType: 'hour',
-  //   },
-  // },
-  // {
-  //   listingType: 'product-selling',
-  //   label: 'Sell bicycles',
-  //   transactionType: {
-  //     process: 'default-purchase',
-  //     alias: 'default-purchase/release-1',
-  //     unitType: 'item',
-  //   },
-  //   stockType: 'multipleItems',
-  //   defaultListingFields: {
-  //     shipping: true,
-  //     pickup: true,
-  //     payoutDetails: true,
-  //   },
-  // },
-  // {
-  //   listingType: 'inquiry',
-  //   label: 'Inquiry',
-  //   transactionType: {
-  //     process: 'default-inquiry',
-  //     alias: 'default-inquiry/release-1',
-  //     unitType: 'inquiry',
-  //   },
-  //   defaultListingFields: {
-  //     price: false,
-  //     location: true,
-  //   },
-  // },
-  //   {
-  //   label: 'Digital file upload',
-  //   listingType: 'digital-file',
-  //   transactionType: {
-  //     process: 'default-download',
-  //     alias: 'default-download/release-1',
-  //     unitType: 'file',
-  //   },
-  //   transactionFields: [
-  //     {
-  //       label: 'Arbitrary field',
-  //       key: 'arbitrary',
-  //       schemaType: 'shortText',
-  //       showTo: 'customer',
-  //       helpText: 'A text field with a 70 char limit',
-  //     },
-  //   ],
-  //   defaultListingFields: {
-  //     description: true,
-  //     availability: false,
-  //     payoutDetails: true,
-  //     images: false,
-  //     pickup: false,
-  //     title: true,
-  //     shipping: false,
-  //     location: false,
-  //     price: true,
-  //     stock: false,
-  //   },
-  // },
+  {
+    "listingType": "buy-now",
+    "label": "Buy it now",
+    "transactionType": {
+      "process": "default-purchase",
+      "alias": "default-purchase/release-1",
+      "unitType": "item"
+    },
+    "stockType": "oneItem",
+    "transactionFields": [],
+    "messagingOptions": {
+      "fileAttachments": false
+    },
+    "defaultListingFields": {
+      "description": true,
+      "availability": false,
+      "payoutDetails": true,
+      "images": true,
+      "pickup": true,
+      "title": true,
+      "files": false,
+      "shipping": true,
+      "location": true,
+      "price": true,
+      "stock": true
+    }
+  },
+  {
+    "listingType": "open-to-offers",
+    "label": "Open to offers",
+    "transactionType": {
+      "process": "default-negotiation",
+      "alias": "default-negotiation/release-1",
+      "unitType": "item"
+    },
+    "negotiationOptions": {
+      "customerCounterOffer": true,
+      "providerUpdateOffer": true
+    },
+    "transactionFields": [],
+    "stockType": "oneItem",
+    "messagingOptions": {
+      "fileAttachments": false
+    },
+    "defaultListingFields": {
+      "description": true,
+      "availability": false,
+      "payoutDetails": true,
+      "images": true,
+      "pickup": true,
+      "title": true,
+      "files": false,
+      "shipping": true,
+      "location": true,
+      "price": true,
+      "stock": true
+    }
+  }
 ];
 
 // SearchPage can enforce listing query to only those listings with valid listingType

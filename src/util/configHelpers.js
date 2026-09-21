@@ -1371,23 +1371,14 @@ const mergeDefaultTypesAndFieldsForDebugging = isDebugging => {
 
 // Note: by default, listing types and fields are only merged if explicitly set for debugging
 const mergeListingConfig = (hostedConfig, defaultConfigs, categoriesInUse) => {
-  // Listing configuration is splitted to several assets in Console
-  const hostedListingTypes = restructureListingTypes(hostedConfig.listingTypes?.listingTypes);
-  const hostedListingFields = restructureListingFields(hostedConfig.listingFields?.listingFields);
-
-  // The default values for local debugging
+  // AI Marketplace Builder #5: this project's own code is the source of truth
+  // for listing types and fields. Seeded from Console once; the hosted assets
+  // are not read from here on.
   const { listingTypes: defaultListingTypes, listingFields: defaultListingFields, ...rest } =
     defaultConfigs.listing || {};
 
-  // When debugging, include default configs by passing 'true' here.
-  // Otherwise, use listing types and fields from hosted assets.
-  const shouldMerge = mergeDefaultTypesAndFieldsForDebugging(false);
-  const listingTypes = shouldMerge
-    ? union(hostedListingTypes, defaultListingTypes, 'listingType')
-    : hostedListingTypes;
-  const listingFields = shouldMerge
-    ? union(hostedListingFields, defaultListingFields, 'key')
-    : hostedListingFields;
+  const listingTypes = defaultListingTypes;
+  const listingFields = defaultListingFields;
 
   const listingTypesInUse = listingTypes.map(lt => `${lt.listingType}`);
 
@@ -1400,20 +1391,13 @@ const mergeListingConfig = (hostedConfig, defaultConfigs, categoriesInUse) => {
 };
 
 const mergeUserConfig = (hostedConfig, defaultConfigs) => {
-  const hostedUserTypes = restructureUserTypes(hostedConfig?.userTypes?.userTypes);
-  const hostedUserFields = restructureUserFields(hostedConfig?.userFields?.userFields);
-
+  // AI Marketplace Builder #5: this project's own code is the source of truth
+  // for user types and fields. Seeded from Console once; the hosted assets
+  // are not read from here on.
   const { userFields: defaultUserFields, userTypes: defaultUserTypes } = defaultConfigs.user;
 
-  // When debugging, include default configs by passing 'true' here.
-  // Otherwise, use user fields from hosted assets.
-  const shouldMerge = mergeDefaultTypesAndFieldsForDebugging(false);
-  const userTypes = shouldMerge
-    ? union(hostedUserTypes, defaultUserTypes, 'userType')
-    : hostedUserTypes;
-  const userFields = shouldMerge
-    ? union(hostedUserFields, defaultUserFields, 'key')
-    : hostedUserFields;
+  const userTypes = defaultUserTypes;
+  const userFields = defaultUserFields;
 
   // To include user type validation (if you have user types in your default configuration),
   // pass userTypes to the validUserFields function as well:
@@ -1709,16 +1693,19 @@ const mergeMapConfig = (hostedMapConfig, defaultMapConfig) => {
 // Validate and merge all configs //
 ////////////////////////////////////
 
-// Check if all the mandatory info have been retrieved from hosted assets
-const hasMandatoryConfigs = hostedConfig => {
-  const { branding, listingTypes, listingFields, transactionSize } = hostedConfig;
-  printErrorIfHostedAssetIsMissing({ branding, listingTypes, listingFields, transactionSize });
+// Check if all the mandatory info have been retrieved from hosted assets or
+// this project's own code — AI Marketplace Builder #5. listingTypes/listingFields
+// come from the already-merged config below, not the hosted payload directly, so
+// an empty or missing Console asset does not put the marketplace into
+// maintenance mode once this project's own code holds real values.
+const hasMandatoryConfigs = ({ branding, listingTypes, listingFields, transactionSize }) => {
+  printErrorIfHostedAssetIsMissing({ branding, transactionSize });
   return (
     branding?.logo &&
-    listingTypes?.listingTypes?.length > 0 &&
-    listingFields?.listingFields &&
+    listingTypes?.length > 0 &&
+    listingFields &&
     transactionSize?.listingMinimumPrice &&
-    !hasClashWithBuiltInPublicDataKey(listingFields?.listingFields)
+    !hasClashWithBuiltInPublicDataKey(listingFields)
   );
 };
 
@@ -1817,7 +1804,13 @@ export const mergeConfig = (configAsset = {}, defaultConfigs = {}) => {
     // Note: if footer asset is not set, Footer is not rendered.
     footer: configAsset.footer,
 
-    // Check if all the mandatory info have been retrieved from hosted assets
-    hasMandatoryConfigurations: hasMandatoryConfigs(configAsset),
+    // Check if all the mandatory info have been retrieved from hosted assets or
+    // this project's own code (see hasMandatoryConfigs above)
+    hasMandatoryConfigurations: hasMandatoryConfigs({
+      branding: configAsset.branding,
+      listingTypes: listingConfiguration.listingTypes,
+      listingFields: listingConfiguration.listingFields,
+      transactionSize: configAsset.transactionSize,
+    }),
   };
 };
