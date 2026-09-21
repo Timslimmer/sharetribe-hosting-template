@@ -1590,3 +1590,14 @@ textarea {
   /* Was near-black: body text in light-theme sections, inherited from html */
   color: #c2410c;
 }
+
+/**
+ * "Shop by category" overrides the orange/purple rules above: black headings and
+ * body text, while the markdown links keep their own .defaultLink rule and stay
+ * on the brand colour. The id comes from the section's sectionId in the
+ * landing-page asset, which SectionColumns renders as a DOM id.
+ */
+.landingPageColorTheme main#main-content #shop-by-category {
+  --pageHeadingColor: #000000;
+  color: #000000;
+}
