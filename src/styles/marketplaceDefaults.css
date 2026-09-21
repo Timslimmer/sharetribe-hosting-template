@@ -1566,38 +1566,3 @@ textarea {
     margin-top: 32px;
   }
 }
-
-/* ================ Landing page text colors ================ */
-
-/**
- * Scoped to the landing page only: LandingPage.js passes the
- * .landingPageColorTheme class down to the Page root. Limiting the rules to
- * main#main-content keeps the shared Topbar and Footer on the default colors.
- *
- * The custom properties below are read by the PageBuilder styles
- * (SectionBuilder.module.css and Primitives/Heading/Heading.module.css), which
- * fall back to the default colors everywhere else.
- */
-.landingPageColorTheme main#main-content {
-  /* Was white: headings, body text and links in dark-theme sections */
-  --pageDarkThemeHeadingColor: #a78bfa;
-  --pageDarkThemeTextColor: #a78bfa;
-  --pageDarkThemeLinkColor: #a78bfa;
-
-  /* Was near-black: headings in light-theme sections */
-  --pageHeadingColor: #c2410c;
-
-  /* Was near-black: body text in light-theme sections, inherited from html */
-  color: #c2410c;
-}
-
-/**
- * "Shop by category" overrides the orange/purple rules above: black headings and
- * body text, while the markdown links keep their own .defaultLink rule and stay
- * on the brand colour. The id comes from the section's sectionId in the
- * landing-page asset, which SectionColumns renders as a DOM id.
- */
-.landingPageColorTheme main#main-content #shop-by-category {
-  --pageHeadingColor: #000000;
-  color: #000000;
-}

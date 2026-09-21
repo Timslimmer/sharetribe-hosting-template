@@ -172,7 +172,7 @@
 .darkTheme h4,
 .darkTheme h5,
 .darkTheme h6 {
-  color: var(--pageDarkThemeHeadingColor, var(--colorWhite));
+  color: var(--colorWhite);
 
   &::selection {
     background-color: cyan;
@@ -183,7 +183,7 @@
 .darkTheme p,
 .darkTheme li,
 .darkTheme blockquote {
-  color: var(--pageDarkThemeTextColor, rgba(255, 255, 255, 0.85));
+  color: rgba(255, 255, 255, 0.85);
 
   &::selection {
     background-color: cyan;
@@ -195,7 +195,7 @@
 
 /* ************************************ */
 .darkTheme .defaultLink {
-  color: var(--pageDarkThemeLinkColor, white);
+  color: white;
   text-decoration: underline;
 
   &:hover {

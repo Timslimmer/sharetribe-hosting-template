@@ -23,7 +23,6 @@ export const LandingPageComponent = props => {
 
   return (
     <PageBuilder
-      className="landingPageColorTheme"
       pageAssetsData={pageAssetsData?.[camelize(ASSET_NAME)]?.data}
       inProgress={inProgress}
       error={error}
